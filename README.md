@@ -38,19 +38,6 @@ wishlist, compare, checkout, order tracking, and authentication (with Google sig
 | State | React Context API (Cart / Wishlist / Compare / Auth) |
 | Data layer | `src/services/api.js` — mock now, swappable to a real REST API later |
 
-## 📂 Project Structure
-
-src/
-├── assets/ # images (hero banners, category art, promo images, etc.)
-├── components/ # reusable UI: Header, Footer, ProductCard, QuickViewModal, ...
-├── context/ # CartContext, WishlistContext, CompareContext, AuthContext
-├── data/
-│ └── mockData.js # dummy products, categories, orders, hero slides
-├── pages/ # one file per route: Home, Shop, ProductDetail, Cart, ...
-├── services/
-│ └── api.js # ⭐ single source of truth for all "backend calls"
-├── App.jsx # routes + context providers
-└── main.jsx
 
 ## 🚀 Getting Started
 
@@ -80,27 +67,6 @@ npm run preview
 | Password | `password123` |
 | Track order | Order ID `ORD-10293` with the same demo email |
 
-## 🔌 Connecting a real backend
-
-Every network call in this app goes through **one file**: [`src/services/api.js`](./src/services/api.js).
-It currently reads/writes mock data (`src/data/mockData.js` + `localStorage`) behind a small artificial
-delay, so loading states behave like a real API. Nothing outside this file talks to `localStorage`
-directly — pages and components only ever call the exported functions (`fetchProducts`,
-`loginWithEmail`, `placeOrder`, etc.).
-
-To switch to a real Node/Express + MongoDB backend:
-
-1. Create a `.env` file (see `.env.example`):
-   \`\`\`
-   VITE_API_BASE_URL=https://your-api.com/api
-   \`\`\`
-2. In `src/services/api.js`, flip the flag:
-   \`\`\`js
-   export const USE_MOCK = false;
-   \`\`\`
-3. Inside each function, replace the `if (USE_MOCK) { ... }` block with the ready-made
-   `httpRequest(...)` call (the helper already attaches the JWT from `localStorage` as a
-   Bearer token, so auth-protected routes work out of the box).
 
 ### Google Sign-In
 
@@ -114,19 +80,7 @@ Google auth:
    and return your own JWT.
 4. Drop that flow into `loginWithGoogle()` in `src/services/api.js` (a commented example is already there).
 
-## 🖼️ Using your own images
 
-Product, category, and promo images currently use placeholder URLs (`picsum.photos`). To use your
-own assets, drop image files into `src/assets/` and import them directly wherever an `image:`
-field is used in `src/data/mockData.js`, e.g.:
-
-\`\`\`js
-import xboxImg from "../assets/hero/xbox-console.jpg";
-
-export const heroSlides = [
-  { id: 1, title: "Xbox Consoles", image: xboxImg, /* ... */ },
-];
-\`\`\`
 
 ## 🗺️ Roadmap
 
@@ -134,7 +88,7 @@ export const heroSlides = [
 - [ ] Real Google OAuth flow
 - [ ] Payment gateway integration (Stripe / SSLCommerz / etc.)
 - [ ] Admin dashboard for product/order management
-- [ ] Product reviews backed by a real database
+- [ ] Product reviews backed by database
 
 ## 📄 License
 
@@ -143,5 +97,5 @@ This project is open-sourced under the [MIT License](./LICENSE).
 ---
 
 <div align="center">
-Made with by Anamika
+Made by Anamika
 </div>
