@@ -16,7 +16,7 @@ wishlist, compare, checkout, order tracking, and authentication (with Google sig
 ---
 
 ## ✨ Features
-
+git pull origin main
 - 🏠 **Homepage** — hero carousel, category strip, featured products, flash-sale/best-seller/top-rated/new-arrival rails, newsletter
 - 🛒 **Shop page** — sidebar filters (category, price range, brand, tags), sorting, pagination, live search
 - 📦 **Product detail** — image gallery, variant selectors (color/size/memory/storage), tabs (description, specs, reviews), related products
