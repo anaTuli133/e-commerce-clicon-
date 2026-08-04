@@ -45,7 +45,7 @@ export default function Home() {
     <div className="container-x py-6">
       {/* Hero + side promo cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 h-full">
           <Hero slides={heroSlides} />
         </div>
         <div className="grid grid-rows-2 gap-4">
@@ -158,47 +158,47 @@ export default function Home() {
         </div>
       </section>
 
-{/* Two promo banners */}
-<section className="grid grid-cols-1 md:grid-cols-2 gap-4 py-6">
+      {/* Two promo banners */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4 py-6">
 
-  <div className="bg-gray-50 rounded-md p-8 flex items-center justify-between overflow-hidden">
-    <div>
-      <span className="text-xs font-semibold text-brand-blue bg-blue-100 px-2 py-1 rounded">INTRODUCING</span>
-      <h3 className="text-xl font-bold mt-3 mb-2">New Apple Homepod Mini</h3>
-      <p className="text-sm text-gray-500 mb-4 max-w-xs">
-        Jam-packed with innovation, HomePod mini delivers unexpectedly.
-      </p>
-      <Link to="/shop" className="inline-block bg-brand-orange text-white text-xs font-semibold px-4 py-2 rounded">
-        SHOP NOW →
-      </Link>
-    </div>
-    <img
-      src={homepodMini}
-      alt="Apple HomePod Mini"
-      className="w-40 h-40 object-contain shrink-0"
-    />
-  </div>
+        <div className="bg-gray-50 rounded-md p-8 flex items-center justify-between overflow-hidden">
+          <div>
+            <span className="text-xs font-semibold text-brand-blue bg-blue-100 px-2 py-1 rounded">INTRODUCING</span>
+            <h3 className="text-xl font-bold mt-3 mb-2">New Apple Homepod Mini</h3>
+            <p className="text-sm text-gray-500 mb-4 max-w-xs">
+              Jam-packed with innovation, HomePod mini delivers unexpectedly.
+            </p>
+            <Link to="/shop" className="inline-block bg-brand-orange text-white text-xs font-semibold px-4 py-2 rounded">
+              SHOP NOW →
+            </Link>
+          </div>
+          <img
+            src={homepodMini}
+            alt="Apple HomePod Mini"
+            className="w-40 h-40 object-contain shrink-0"
+          />
+        </div>
 
-  <div className="bg-brand-dark rounded-md p-8 flex items-center justify-between text-white relative overflow-hidden">
-    <div>
-      <span className="text-xs font-semibold text-brand-yellow bg-white/10 px-2 py-1 rounded">INTRODUCING NEW</span>
-      <h3 className="text-xl font-bold mt-3 mb-2">Xiaomi Mi 11 Ultra 12GB+256GB</h3>
-      <p className="text-sm text-white/60 mb-4 max-w-xs">*Data provided by internal laboratories.</p>
-      <Link to="/shop" className="inline-block bg-brand-orange text-white text-xs font-semibold px-4 py-2 rounded">
-        SHOP NOW →
-      </Link>
-    </div>
-    <img
-      src={xiaomiMi11Ultra}
-      alt="Xiaomi Mi 11 Ultra"
-      className="absolute right-0 bottom-0 h-full max-h-[220px] object-contain object-bottom"
-    />
-    <span className="absolute top-4 right-4 bg-brand-blue text-white text-sm font-bold w-14 h-14 rounded-full flex items-center justify-center z-10">
-      $590
-    </span>
-  </div>
+        <div className="bg-brand-dark rounded-md p-8 flex items-center justify-between text-white relative overflow-hidden">
+          <div>
+            <span className="text-xs font-semibold text-brand-yellow bg-white/10 px-2 py-1 rounded">INTRODUCING NEW</span>
+            <h3 className="text-xl font-bold mt-3 mb-2">Xiaomi Mi 11 Ultra 12GB+256GB</h3>
+            <p className="text-sm text-white/60 mb-4 max-w-xs">*Data provided by internal laboratories.</p>
+            <Link to="/shop" className="inline-block bg-brand-orange text-white text-xs font-semibold px-4 py-2 rounded">
+              SHOP NOW →
+            </Link>
+          </div>
+          <img
+            src={xiaomiMi11Ultra}
+            alt="Xiaomi Mi 11 Ultra"
+            className="absolute right-0 bottom-0 h-full max-h-[220px] object-contain object-bottom"
+          />
+          <span className="absolute top-4 right-4 bg-brand-blue text-white text-sm font-bold w-14 h-14 rounded-full flex items-center justify-center z-10">
+            $590
+          </span>
+        </div>
 
-</section>
+      </section>
 
       {/* Four columns */}
       <section className="py-10">
