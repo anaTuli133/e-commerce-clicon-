@@ -97,5 +97,5 @@ This project is open-sourced under the [MIT License](./LICENSE).
 ---
 
 <div align="center">
-Made with by Anamika
+Made by Anamika
 </div>
