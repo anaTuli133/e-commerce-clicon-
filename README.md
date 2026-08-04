@@ -1,3 +1,57 @@
+<div align="center">
+
+# 🛍️ Clicon — eCommerce Frontend
+
+A modern, fully responsive eCommerce storefront built with **React**, **Vite**, and **Tailwind CSS**.
+Pixel-inspired by the Clicon design template — homepage, shop with filters, product details, cart,
+wishlist, compare, checkout, order tracking, and authentication (with Google sign-in).
+
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
+</div>
+
+---
+
+## ✨ Features
+
+- 🏠 **Homepage** — hero carousel, category strip, featured products, flash-sale/best-seller/top-rated/new-arrival rails, newsletter
+- 🛒 **Shop page** — sidebar filters (category, price range, brand, tags), sorting, pagination, live search
+- 📦 **Product detail** — image gallery, variant selectors (color/size/memory/storage), tabs (description, specs, reviews), related products
+- ❤️ **Wishlist**, 🔁 **Compare** (up to 4 products), 🛍️ **Cart** with quantity controls and coupon field
+- 💳 **Checkout** — billing form, multiple payment method UI, order summary, success page
+- 📍 **Track order** by Order ID + email
+- 🔐 **Auth** — email/password sign in & sign up, plus a Google sign-in button (mock, ready to wire up to real OAuth)
+- ⚡ Cart / Wishlist / Compare state persists via `localStorage` through a single mock API layer
+- 🎨 Fully responsive, built with Tailwind CSS v4 utility classes only (no external UI kit)
+
+## 🖥️ Tech Stack
+
+| Layer | Choice |
+|---|---|
+| Framework | React 19 + Vite |
+| Routing | React Router v7 |
+| Styling | Tailwind CSS v4 (`@tailwindcss/vite`) |
+| Icons | react-icons |
+| State | React Context API (Cart / Wishlist / Compare / Auth) |
+| Data layer | `src/services/api.js` — mock now, swappable to a real REST API later |
+
+## 📂 Project Structure
+
+src/
+├── assets/ # images (hero banners, category art, promo images, etc.)
+├── components/ # reusable UI: Header, Footer, ProductCard, QuickViewModal, ...
+├── context/ # CartContext, WishlistContext, CompareContext, AuthContext
+├── data/
+│ └── mockData.js # dummy products, categories, orders, hero slides
+├── pages/ # one file per route: Home, Shop, ProductDetail, Cart, ...
+├── services/
+│ └── api.js # ⭐ single source of truth for all "backend calls"
+├── App.jsx # routes + context providers
+└── main.jsx
+
 ## 🚀 Getting Started
 
 **Requirements:** Node.js 18+
