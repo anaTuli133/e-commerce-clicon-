@@ -1,16 +1,20 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import * as api from "../services/api";
 
 const WishlistContext = createContext(null);
 
 export function WishlistProvider({ children }) {
   const [ids, setIds] = useState([]);
+  const modifiedRef = useRef(false);
 
   useEffect(() => {
-    api.fetchWishlist().then((data) => setIds(data || []));
+    api.fetchWishlist().then((data) => {
+      if (!modifiedRef.current) setIds(data || []);
+    });
   }, []);
 
   const toggleWishlist = useCallback((productId) => {
+    modifiedRef.current = true;
     setIds((prev) => {
       const next = prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId];
       api.saveWishlist(next);
@@ -19,6 +23,7 @@ export function WishlistProvider({ children }) {
   }, []);
 
   const removeFromWishlist = useCallback((productId) => {
+    modifiedRef.current = true;
     setIds((prev) => {
       const next = prev.filter((id) => id !== productId);
       api.saveWishlist(next);

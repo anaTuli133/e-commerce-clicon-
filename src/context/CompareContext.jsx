@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import * as api from "../services/api";
 
 const CompareContext = createContext(null);
@@ -6,12 +6,16 @@ const MAX_COMPARE = 4;
 
 export function CompareProvider({ children }) {
   const [ids, setIds] = useState([]);
+  const modifiedRef = useRef(false); 
 
   useEffect(() => {
-    api.fetchCompare().then((data) => setIds(data || []));
+    api.fetchCompare().then((data) => {
+      if (!modifiedRef.current) setIds(data || []);
+    });
   }, []);
 
   const toggleCompare = useCallback((productId) => {
+    modifiedRef.current = true;
     setIds((prev) => {
       let next;
       if (prev.includes(productId)) {
@@ -26,6 +30,7 @@ export function CompareProvider({ children }) {
   }, []);
 
   const removeFromCompare = useCallback((productId) => {
+    modifiedRef.current = true;
     setIds((prev) => {
       const next = prev.filter((id) => id !== productId);
       api.saveCompare(next);

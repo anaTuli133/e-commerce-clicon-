@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaFilter, FaTimes } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
 import * as api from "../services/api";
 import Breadcrumb from "../components/Breadcrumb";
@@ -31,6 +31,7 @@ export default function Shop() {
   const [page, setPage] = useState(1);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [localSearch, setLocalSearch] = useState(searchParams.get("search") || "");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const category = searchParams.get("category") || "";
   const priceLabel = searchParams.get("price") || "All Price";
@@ -38,7 +39,6 @@ export default function Shop() {
   const search = searchParams.get("search") || "";
   const [selectedBrands, setSelectedBrands] = useState([]);
 
-  // ⬇️ NEW: custom slider range state (independent of the radio presets)
   const [sliderMin, setSliderMin] = useState(SLIDER_MIN);
   const [sliderMax, setSliderMax] = useState(SLIDER_MAX);
 
@@ -46,9 +46,16 @@ export default function Shop() {
     api.fetchCategories().then(setMeta);
   }, []);
 
+  // মোবাইলে filter drawer খোলা থাকলে background scroll বন্ধ
+  useEffect(() => {
+    document.body.style.overflow = filtersOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [filtersOpen]);
+
   useEffect(() => {
     setLoading(true);
-    // If a radio preset is selected, it wins. Otherwise use the custom slider range.
     const preset = PRICE_RANGES.find((r) => r.label === priceLabel) || {};
     const usingPreset = priceLabel !== "All Price";
     const min = usingPreset ? preset.min : (sliderMin > SLIDER_MIN ? sliderMin : undefined);
@@ -76,7 +83,6 @@ export default function Shop() {
     setSelectedBrands((prev) => (prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]));
   }
 
-  // ⬇️ NEW: slider drag handlers — keeps min <= max, resets radio preset to "All Price" so custom range takes effect
   function handleMinSlider(e) {
     const val = Math.min(Number(e.target.value), sliderMax - 1);
     setSliderMin(val);
@@ -104,157 +110,173 @@ export default function Shop() {
   const categoryLabel = meta.allCategoryTree.find((c) => c.id === category)?.name;
   const minPercent = (sliderMin / SLIDER_MAX) * 100;
   const maxPercent = (sliderMax / SLIDER_MAX) * 100;
+  const activeFilterCount = (category ? 1 : 0) + (priceLabel !== "All Price" ? 1 : 0) + selectedBrands.length;
+
+  // পুরো sidebar কনটেন্টটা একবার লিখে desktop + mobile drawer দুই জায়গায় reuse করছি
+  const filterContent = (
+    <div className="space-y-8">
+      <div>
+        <h4 className="font-semibold mb-3">Category</h4>
+        <ul className="space-y-2 text-sm">
+          <li>
+            <button
+              onClick={() => updateParam("category", "")}
+              className={`text-left ${!category ? "text-brand-orange font-medium" : "text-gray-600 hover:text-brand-orange"}`}
+            >
+              All Categories
+            </button>
+          </li>
+          {meta.allCategoryTree.map((c) => (
+            <li key={c.id}>
+              <button
+                onClick={() => updateParam("category", c.id)}
+                className={`text-left ${category === c.id ? "text-brand-orange font-medium" : "text-gray-600 hover:text-brand-orange"}`}
+              >
+                {c.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h4 className="font-semibold mb-3 uppercase text-xs tracking-wide">Price Range</h4>
+
+        <div className="relative h-1 bg-gray-200 rounded-full mt-6 mb-4">
+          <div
+            className="absolute h-1 bg-brand-orange rounded-full"
+            style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
+          />
+          <input
+            type="range"
+            min={SLIDER_MIN}
+            max={SLIDER_MAX}
+            value={sliderMin}
+            onChange={handleMinSlider}
+            className="range-thumb absolute w-full h-1 top-0 left-0 appearance-none bg-transparent pointer-events-none"
+          />
+          <input
+            type="range"
+            min={SLIDER_MIN}
+            max={SLIDER_MAX}
+            value={sliderMax}
+            onChange={handleMaxSlider}
+            className="range-thumb absolute w-full h-1 top-0 left-0 appearance-none bg-transparent pointer-events-none"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 mb-4">
+          <input
+            type="number"
+            value={sliderMin}
+            onChange={handleMinInput}
+            placeholder="Min price"
+            className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm outline-none focus:border-brand-orange"
+          />
+          <span className="text-gray-400">-</span>
+          <input
+            type="number"
+            value={sliderMax}
+            onChange={handleMaxInput}
+            placeholder="Max price"
+            className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm outline-none focus:border-brand-orange"
+          />
+        </div>
+
+        <ul className="space-y-2 text-sm">
+          {PRICE_RANGES.map((r) => (
+            <li key={r.label} className="flex items-center gap-2">
+              <input
+                type="radio"
+                checked={priceLabel === r.label}
+                onChange={() => {
+                  updateParam("price", r.label === "All Price" ? "" : r.label);
+                  setSliderMin(r.min ?? SLIDER_MIN);
+                  setSliderMax(r.max ?? SLIDER_MAX);
+                }}
+                className="accent-brand-orange"
+              />
+              <span className={priceLabel === r.label ? "text-brand-orange" : "text-gray-600"}>{r.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h4 className="font-semibold mb-3">Popular Brands</h4>
+        <ul className="space-y-2 text-sm">
+          {meta.brands.map((b) => (
+            <li key={b} className="flex items-center gap-2">
+              <input type="checkbox" checked={selectedBrands.includes(b)} onChange={() => toggleBrand(b)} className="accent-brand-orange" />
+              <span className="text-gray-600">{b}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h4 className="font-semibold mb-3">Popular Tag</h4>
+        <div className="flex flex-wrap gap-2">
+          {meta.popularTags.map((t) => (
+            <button
+              key={t}
+              onClick={() => updateParam("search", t)}
+              className="text-xs border border-gray-200 rounded px-2.5 py-1.5 hover:border-brand-orange hover:text-brand-orange"
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="border border-brand-orange/40 rounded p-5 text-center">
+        <img src={appleWatchImg} alt="Apple Watch Series 7" className="w-full mb-4" />
+        <p className="font-semibold text-sm tracking-wide flex items-center justify-center gap-1.5">
+          <img src={appleLogoImg} alt="Apple" className="w-4 h-4 object-contain" />
+          WATCH
+        </p>
+        <p className="text-brand-red text-xs font-semibold mb-2">SERIES 7</p>
+        <p className="font-semibold leading-snug mb-3">
+          Heavy on Features.
+          <br /> Light on Price.
+        </p>
+        <p className="text-sm text-gray-500 mb-3">
+          Only for: <span className="bg-yellow-200 px-2 py-0.5 rounded font-medium text-gray-800">$299 USD</span>
+        </p>
+        <button className="w-full bg-brand-orange text-white rounded py-2 text-sm font-medium flex items-center justify-center gap-2 mb-2 hover:bg-brand-orange/90">
+          <FaCartShopping size={13} /> ADD TO CART
+        </button>
+        <button className="w-full border border-brand-orange text-brand-orange rounded py-2 text-sm font-medium hover:bg-brand-orange/5">
+          VIEW DETAILS →
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div>
       <Breadcrumb items={[{ label: "Shop", to: "/shop" }, { label: categoryLabel || "All Products" }]} />
 
       <div className="container-x py-8 grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
-        {/* Sidebar */}
-        <aside className="space-y-8">
-          <div>
-            <h4 className="font-semibold mb-3">Category</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <button
-                  onClick={() => updateParam("category", "")}
-                  className={`text-left ${!category ? "text-brand-orange font-medium" : "text-gray-600 hover:text-brand-orange"}`}
-                >
-                  All Categories
-                </button>
-              </li>
-              {meta.allCategoryTree.map((c) => (
-                <li key={c.id}>
-                  <button
-                    onClick={() => updateParam("category", c.id)}
-                    className={`text-left ${category === c.id ? "text-brand-orange font-medium" : "text-gray-600 hover:text-brand-orange"}`}
-                  >
-                    {c.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-3 uppercase text-xs tracking-wide">Price Range</h4>
-
-            {/* NEW: dual-thumb slider */}
-            <div className="relative h-1 bg-gray-200 rounded-full mt-6 mb-4">
-              <div
-                className="absolute h-1 bg-brand-orange rounded-full"
-                style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
-              />
-              <input
-                type="range"
-                min={SLIDER_MIN}
-                max={SLIDER_MAX}
-                value={sliderMin}
-                onChange={handleMinSlider}
-                className="range-thumb absolute w-full h-1 top-0 left-0 appearance-none bg-transparent pointer-events-none"
-              />
-              <input
-                type="range"
-                min={SLIDER_MIN}
-                max={SLIDER_MAX}
-                value={sliderMax}
-                onChange={handleMaxSlider}
-                className="range-thumb absolute w-full h-1 top-0 left-0 appearance-none bg-transparent pointer-events-none"
-              />
-            </div>
-
-            {/* NEW: min/max input boxes */}
-            <div className="flex items-center gap-2 mb-4">
-              <input
-                type="number"
-                value={sliderMin}
-                onChange={handleMinInput}
-                placeholder="Min price"
-                className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm outline-none focus:border-brand-orange"
-              />
-              <span className="text-gray-400">-</span>
-              <input
-                type="number"
-                value={sliderMax}
-                onChange={handleMaxInput}
-                placeholder="Max price"
-                className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm outline-none focus:border-brand-orange"
-              />
-            </div>
-
-            <ul className="space-y-2 text-sm">
-              {PRICE_RANGES.map((r) => (
-                <li key={r.label} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    checked={priceLabel === r.label}
-                    onChange={() => {
-                      updateParam("price", r.label === "All Price" ? "" : r.label);
-                      setSliderMin(r.min ?? SLIDER_MIN);
-                      setSliderMax(r.max ?? SLIDER_MAX);
-                    }}
-                    className="accent-brand-orange"
-                  />
-                  <span className={priceLabel === r.label ? "text-brand-orange" : "text-gray-600"}>{r.label}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-3">Popular Brands</h4>
-            <ul className="space-y-2 text-sm">
-              {meta.brands.map((b) => (
-                <li key={b} className="flex items-center gap-2">
-                  <input type="checkbox" checked={selectedBrands.includes(b)} onChange={() => toggleBrand(b)} className="accent-brand-orange" />
-                  <span className="text-gray-600">{b}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-3">Popular Tag</h4>
-            <div className="flex flex-wrap gap-2">
-              {meta.popularTags.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => updateParam("search", t)}
-                  className="text-xs border border-gray-200 rounded px-2.5 py-1.5 hover:border-brand-orange hover:text-brand-orange"
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* NEW: Apple Watch promo card */}
-          <div className="border border-brand-orange/40 rounded p-5 text-center">
-            <img src={appleWatchImg} alt="Apple Watch Series 7" className="w-full mb-4" />
-            <p className="font-semibold text-sm tracking-wide flex items-center justify-center gap-1.5">
-              <img src={appleLogoImg} alt="Apple" className="w-4 h-4 object-contain" />
-              WATCH
-            </p>
-            <p className="text-brand-red text-xs font-semibold mb-2">SERIES 7</p>
-            <p className="font-semibold leading-snug mb-3">
-              Heavy on Features.
-              <br /> Light on Price.
-            </p>
-            <p className="text-sm text-gray-500 mb-3">
-              Only for: <span className="bg-yellow-200 px-2 py-0.5 rounded font-medium text-gray-800">$299 USD</span>
-            </p>
-            <button className="w-full bg-brand-orange text-white rounded py-2 text-sm font-medium flex items-center justify-center gap-2 mb-2 hover:bg-brand-orange/90">
-              <FaCartShopping size={13} /> ADD TO CART
-            </button>
-            <button className="w-full border border-brand-orange text-brand-orange rounded py-2 text-sm font-medium hover:bg-brand-orange/5">
-              VIEW DETAILS →
-            </button>
-          </div>
-        </aside>
+        {/* Desktop sidebar */}
+        <aside className="hidden lg:block">{filterContent}</aside>
 
         {/* Product grid */}
         <div>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            {/* মোবাইলে Filters বাটন */}
+            <button
+              onClick={() => setFiltersOpen(true)}
+              className="lg:hidden flex items-center gap-2 border border-gray-200 rounded px-3 py-2 text-sm hover:border-brand-orange"
+            >
+              <FaFilter size={12} /> Filters
+              {activeFilterCount > 0 && (
+                <span className="bg-brand-orange text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -325,7 +347,7 @@ export default function Shop() {
           )}
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-10">
+            <div className="flex items-center justify-center gap-2 mt-10 flex-wrap">
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -354,6 +376,28 @@ export default function Shop() {
           )}
         </div>
       </div>
+
+      {/* filter drawer */}
+      {filtersOpen && (
+        <div className="fixed inset-0 z-[60] lg:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setFiltersOpen(false)} />
+          <div className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white p-5 overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-semibold text-lg">Filters</h3>
+              <button onClick={() => setFiltersOpen(false)} aria-label="Close filters">
+                <FaTimes size={18} />
+              </button>
+            </div>
+            {filterContent}
+            <button
+              onClick={() => setFiltersOpen(false)}
+              className="w-full mt-6 bg-brand-orange hover:bg-brand-orange-dark text-white font-semibold text-sm py-3 rounded"
+            >
+              Show {products.length} Results
+            </button>
+          </div>
+        </div>
+      )}
 
       <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </div>

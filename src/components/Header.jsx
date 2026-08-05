@@ -4,7 +4,7 @@ import blackBadge from "../assets/black-friday-badge.png";
 import {
   FaTwitter, FaFacebookF, FaPinterestP, FaRedditAlien, FaYoutube, FaInstagram,
   FaSearch, FaHeart, FaUser, FaShoppingCart, FaTimes, FaChevronDown,
-  FaMapMarkerAlt, FaExchangeAlt, FaHeadset, FaInfoCircle, FaPhoneAlt, FaEye,
+  FaMapMarkerAlt, FaExchangeAlt, FaHeadset, FaInfoCircle, FaPhoneAlt, FaEye, FaBars,
 } from "react-icons/fa";
 import { allCategoryTree } from "../data/mockData";
 import { products } from "../data/mockData";
@@ -22,6 +22,7 @@ export default function Header() {
   const [userOpen, setUserOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const catRef = useRef(null);
@@ -47,9 +48,18 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  // মোবাইল মেনু খোলা থাকলে background scroll বন্ধ রাখি
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   function submitSearch(e) {
     e.preventDefault();
     navigate(`/shop?search=${encodeURIComponent(search)}`);
+    setMobileMenuOpen(false);
   }
 
   return (
@@ -91,7 +101,16 @@ export default function Header() {
 
       {/* Main header */}
       <div className="bg-brand-blue">
-        <div className="container-x flex items-center gap-6 py-4">
+        <div className="container-x flex items-center gap-4 md:gap-6 py-4">
+          {/* Hamburger — শুধু মোবাইলে দেখাবে */}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden text-white shrink-0"
+            aria-label="Open menu"
+          >
+            <FaBars size={20} />
+          </button>
+
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <span className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-white text-lg">
               ◎
@@ -122,7 +141,7 @@ export default function Header() {
                 </span>
               </button>
               {cartOpen && (
-                <div className="absolute right-0 top-full mt-3 w-80 bg-white text-brand-dark rounded shadow-xl p-4 z-50">
+                <div className="absolute right-0 top-full mt-3 w-80 max-w-[90vw] bg-white text-brand-dark rounded shadow-xl p-4 z-50">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-semibold text-sm">Shopping Cart ({totalCount})</h4>
                   </div>
@@ -217,7 +236,7 @@ export default function Header() {
                     </div>
                   </div>
                 ) : (
-                  <div className="absolute right-0 top-full mt-3 w-72 bg-white text-brand-dark rounded shadow-xl p-5 z-50">
+                  <div className="absolute right-0 top-full mt-3 w-72 max-w-[90vw] bg-white text-brand-dark rounded shadow-xl p-5 z-50">
                     <h4 className="font-semibold mb-3">Sign in to your account</h4>
                     <Link
                       to="/sign-in"
@@ -238,9 +257,24 @@ export default function Header() {
             </div>
           </div>
         </div>
+
+        {/* মোবাইলে search bar আলাদা লাইনে (কারণ উপরের বার-এ hidden sm:flex) */}
+        <div className="container-x pb-4 sm:hidden">
+          <form onSubmit={submitSearch} className="flex w-full bg-white rounded overflow-hidden">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search for anything..."
+              className="flex-1 px-4 py-2.5 text-sm outline-none text-brand-dark"
+            />
+            <button type="submit" className="px-4 text-brand-dark hover:text-brand-orange">
+              <FaSearch />
+            </button>
+          </form>
+        </div>
       </div>
 
-      {/* Sub nav */}
+      {/* Sub nav — শুধু ডেস্কটপে দেখাবে */}
       <div className="bg-white border-b border-gray-200 hidden md:block">
         <div className="container-x flex items-center justify-between py-3 text-sm text-gray-600">
           <div className="flex items-center gap-6">
@@ -301,6 +335,78 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Mobile menu drawer — শুধু মোবাইলে, hamburger ক্লিক করলে খুলবে */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] md:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
+          <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white p-5 overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-full border-2 border-brand-blue flex items-center justify-center text-brand-blue text-lg">
+                  ◎
+                </span>
+                <span className="text-brand-dark text-lg font-bold">CLICON</span>
+              </Link>
+              <button onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
+                <FaTimes size={18} />
+              </button>
+            </div>
+
+            <p className="text-xs font-semibold text-gray-400 uppercase mb-2 mt-4">Categories</p>
+            <nav className="flex flex-col text-sm mb-4">
+              {allCategoryTree.map((c) => (
+                <Link
+                  key={c.id}
+                  to={`/shop?category=${c.id}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 border-b border-gray-50 text-gray-700 hover:text-brand-orange"
+                >
+                  {c.name}
+                </Link>
+              ))}
+            </nav>
+
+            <p className="text-xs font-semibold text-gray-400 uppercase mb-2 mt-4">Quick Links</p>
+            <nav className="flex flex-col text-sm">
+              <Link to="/track-order" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 py-2.5 border-b border-gray-50 hover:text-brand-orange">
+                <FaMapMarkerAlt size={13} /> Track Order
+              </Link>
+              <Link to="/compare" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 py-2.5 border-b border-gray-50 hover:text-brand-orange">
+                <FaExchangeAlt size={13} /> Compare
+              </Link>
+              <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 py-2.5 border-b border-gray-50 hover:text-brand-orange">
+                <FaHeart size={13} /> Wishlist
+              </Link>
+              <a href="/customer-support" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 py-2.5 border-b border-gray-50 hover:text-brand-orange">
+                <FaHeadset size={13} /> Customer Support
+              </a>
+              <a href="/help" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 py-2.5 border-b border-gray-50 hover:text-brand-orange">
+                <FaInfoCircle size={13} /> Need Help
+              </a>
+            </nav>
+
+            {!user && (
+              <div className="mt-6 flex flex-col gap-2">
+                <Link
+                  to="/sign-in"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-center bg-brand-orange hover:bg-brand-orange-dark text-white text-sm font-semibold py-2.5 rounded"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/sign-up"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-center border border-gray-300 text-sm py-2.5 rounded"
+                >
+                  Create Account
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

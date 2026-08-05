@@ -152,17 +152,7 @@ export async function registerWithEmail({ name, email, password }) {
   return data;
 }
 
-/**
- * Google sign-in placeholder.
- * এখন এটা শুধু একটা mock user তৈরি করে দেয় — কোনো real Google OAuth কল হয় না।
- *
- * ব্যাকএন্ড রেডি হওয়ার পর সাধারণত এভাবে করা হয়:
- *  1. ফ্রন্টএন্ডে @react-oauth/google প্যাকেজ ব্যবহার করে Google থেকে
- *     একটা credential/id_token নেওয়া হয়।
- *  2. সেই টোকেন POST করা হয় ব্যাকএন্ডের /auth/google এন্ডপয়েন্টে।
- *  3. ব্যাকএন্ড টোকেন verify করে (google-auth-library দিয়ে), MongoDB-তে
- *     ইউজার খুঁজে/তৈরি করে, এবং নিজের JWT ফেরত দেয়।
- */
+
 export async function loginWithGoogle() {
   if (USE_MOCK) {
     await wait(700);
@@ -178,10 +168,7 @@ export async function loginWithGoogle() {
     writeLS(LS_KEYS.token, token);
     return { user, token };
   }
-  // Real flow example (after wiring @react-oauth/google on the SignIn page):
-  // const data = await httpRequest("/auth/google", { method: "POST", body: { credential } });
-  // writeLS(LS_KEYS.token, data.token);
-  // return data;
+ 
   throw new Error("Google auth not configured yet");
 }
 
@@ -264,6 +251,8 @@ export async function saveCompare(ids) {
 // =============================================================================
 // ORDERS / CHECKOUT
 // =============================================================================
+const LS_ORDERS_KEY = "clicon_orders";
+
 export async function placeOrder(orderPayload) {
   if (USE_MOCK) {
     await wait(800);
@@ -273,6 +262,9 @@ export async function placeOrder(orderPayload) {
       status: "Processing",
       ...orderPayload,
     };
+
+    const existing = readLS(LS_ORDERS_KEY, []);
+    writeLS(LS_ORDERS_KEY, [order, ...existing]);
     return order;
   }
   return httpRequest("/orders", { method: "POST", body: orderPayload });
@@ -281,8 +273,12 @@ export async function placeOrder(orderPayload) {
 export async function trackOrder({ orderId, email }) {
   if (USE_MOCK) {
     await wait(500);
-    const order = MOCK_ORDERS.find(
-      (o) => o.id.toLowerCase() === String(orderId).toLowerCase() && o.email.toLowerCase() === String(email).toLowerCase()
+    const savedOrders = readLS(LS_ORDERS_KEY, []);
+    const allOrders = [...MOCK_ORDERS, ...savedOrders];
+    const order = allOrders.find(
+      (o) =>
+        o.id.toLowerCase() === String(orderId).toLowerCase() &&
+        String(o.email || "").toLowerCase() === String(email).toLowerCase()
     );
     if (!order) throw new Error("No order found with that ID and email.");
     return order;

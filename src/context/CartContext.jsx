@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from "react";
 import * as api from "../services/api";
 
 const CartContext = createContext(null);
@@ -6,21 +6,27 @@ const CartContext = createContext(null);
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]); // [{ productId, qty }]
   const [loaded, setLoaded] = useState(false);
+  const modifiedRef = useRef(false); 
 
   useEffect(() => {
     api.fetchCart().then((data) => {
-      setItems(data || []);
+
+      if (!modifiedRef.current) {
+        setItems(data || []);
+      }
       setLoaded(true);
     });
   }, []);
 
   const persist = useCallback((next) => {
+    modifiedRef.current = true;
     setItems(next);
     api.saveCart(next);
   }, []);
 
   const addToCart = useCallback(
     (productId, qty = 1) => {
+      modifiedRef.current = true;
       setItems((prev) => {
         const existing = prev.find((i) => i.productId === productId);
         let next;
@@ -37,6 +43,7 @@ export function CartProvider({ children }) {
   );
 
   const removeFromCart = useCallback((productId) => {
+    modifiedRef.current = true;
     setItems((prev) => {
       const next = prev.filter((i) => i.productId !== productId);
       api.saveCart(next);
@@ -45,6 +52,7 @@ export function CartProvider({ children }) {
   }, []);
 
   const updateQty = useCallback((productId, qty) => {
+    modifiedRef.current = true;
     setItems((prev) => {
       const next = prev.map((i) => (i.productId === productId ? { ...i, qty: Math.max(1, qty) } : i));
       api.saveCart(next);
@@ -52,10 +60,10 @@ export function CartProvider({ children }) {
     });
   }, []);
 
-  // bulk update — apply several quantity changes in ONE state update + ONE api call,
-  // instead of calling updateQty() in a loop (which would trigger N re-renders + N saves)
+
   const updateCart = useCallback((changes) => {
     // changes: [{ productId, qty }, ...]
+    modifiedRef.current = true;
     setItems((prev) => {
       const changeMap = new Map(changes.map((c) => [c.productId, Math.max(1, c.qty)]));
       const next = prev.map((i) =>
