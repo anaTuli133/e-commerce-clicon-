@@ -274,7 +274,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Sub nav — শুধু ডেস্কটপে দেখাবে */}
+
       <div className="bg-white border-b border-gray-200 hidden md:block">
         <div className="container-x flex items-center justify-between py-3 text-sm text-gray-600">
           <div className="flex items-center gap-6">
@@ -323,12 +323,14 @@ export default function Header() {
             <Link to="/compare" className="flex items-center gap-1.5 hover:text-brand-orange">
               <FaExchangeAlt size={13} /> Compare
             </Link>
-            <a href="/customer-support" className="flex items-center gap-1.5 hover:text-brand-orange">
+
+
+            <Link to="/customer-support" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 py-2.5 border-b border-gray-50 hover:text-brand-orange">
               <FaHeadset size={13} /> Customer Support
-            </a>
-            <a href="/help" className="flex items-center gap-1.5 hover:text-brand-orange">
+            </Link>
+            <Link to="/help" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 py-2.5 border-b border-gray-50 hover:text-brand-orange">
               <FaInfoCircle size={13} /> Need Help
-            </a>
+            </Link>
           </div>
           <div className="flex items-center gap-2 text-brand-dark font-medium">
             <FaPhoneAlt size={13} /> +1-202-555-0104
@@ -336,7 +338,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile menu drawer — শুধু মোবাইলে, hamburger ক্লিক করলে খুলবে */}
+
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-[60] md:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
