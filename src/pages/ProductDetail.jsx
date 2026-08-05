@@ -29,8 +29,6 @@ const PAYMENT_ICONS = [
   { Icon: FaCcApplePay, color: "#000000" },
 ];
 
-// প্রতিটা প্রোডাক্টের জন্য deterministic কিছু sample review জেনারেট করে —
-// পরে real backend এলে এটার বদলে api.fetchReviews(productId) কল করলেই হবে।
 const REVIEW_POOL = [
   { name: "Mateo Bennett", comment: "Great product! Exactly as described and arrived fast." },
   { name: "Jackson Evans", comment: "Highly recommended! Would definitely buy again." },
