@@ -1,0 +1,172 @@
+// এখানে আগে picsum.photos দিয়ে random placeholder ছবি ব্যবহার হতো, যার কারণে
+// homepage/product card এ অপ্রাসঙ্গিক (bridge, forest, aurora ইত্যাদি) ছবি দেখা যাচ্ছিল।
+// এখন backend/public/products ফোল্ডারে রাখা real product ছবি (frontend এর
+// src/data/mockData.js তে যেগুলো ব্যবহার হয়েছে, সেগুলোরই কপি) serve করা হচ্ছে
+// server.js এর express.static("/products", ...) route দিয়ে।
+
+const IMAGE_BASE_URL = process.env.IMAGE_BASE_URL || "http://localhost:5000";
+const img = (n) => `${IMAGE_BASE_URL}/products/img${n}.png`;
+
+const products = [
+  {
+    _id: "p1",
+    name: "TOZO T6 True Wireless Earbuds Bluetooth Headphones Touch Control",
+    price: 70,
+    rating: 5,
+    reviews: 738,
+    badge: "HOT",
+    category: "headphone",
+    brand: "Sony",
+    image: img(19),
+    images: [img(19), img(9), img(3), img(8)],
+    stock: "In Stock",
+    sku: "A264671",
+    description:
+      "True wireless earbuds with active noise cancellation, touch controls, and a 40-hour battery life with the charging case. IPX8 waterproof rating makes them ideal for workouts and running.",
+  },
+  {
+    _id: "p2",
+    name: "Samsung Electronics Samsung Galaxy S21 5G",
+    price: 2300,
+    rating: 5,
+    reviews: 536,
+    category: "smartphone",
+    brand: "Samsung",
+    image: img(17),
+    images: [img(17), img(1), img(7), img(0)],
+    stock: "In Stock",
+    sku: "A264672",
+    description:
+      "Factory unlocked Android smartphone with a 120Hz display, triple camera system, and all-day battery life. Compatible with all major US carriers.",
+  },
+  {
+    _id: "p3",
+    name: "Amazon Basics High-Speed HDMI Cable (18 Gbps, 4K/60Hz)",
+    price: 360,
+    rating: 5,
+    reviews: 423,
+    badge: "BEST DEALS",
+    category: "accessories",
+    brand: "Google",
+    image: img(10),
+    images: [img(10), img(13)],
+    stock: "In Stock",
+    sku: "A264673",
+    description:
+      "Premium braided HDMI cable supporting 4K@60Hz, HDR, and 3D formats. Fully compatible with HDMI 2.0, 1.4, and earlier standards.",
+  },
+  {
+    _id: "p4",
+    name: "Portable Washing Machine, 11lbs capacity Model 18NMF1AM",
+    price: 80,
+    rating: 4,
+    reviews: 816,
+    category: "tv-homes",
+    brand: "LG",
+    image: img(15),
+    images: [img(15), img(2)],
+    stock: "In Stock",
+    sku: "A264674",
+    description:
+      "Compact portable washing machine perfect for apartments, dorms, and RVs. 11lbs capacity with 8 wash programs and a built-in gravity drain.",
+  },
+  {
+    _id: "p5",
+    name: "Wired Over-Ear Gaming Headphones with USB",
+    price: 1500,
+    rating: 5,
+    reviews: 647,
+    category: "headphone",
+    brand: "HP",
+    image: img(9),
+    images: [img(9), img(8)],
+    stock: "In Stock",
+    sku: "A264675",
+    description:
+      "Immersive 7.1 surround sound gaming headset with a noise-cancelling mic, memory foam ear cushions, and customizable RGB lighting.",
+  },
+  {
+    _id: "p6",
+    name: "Polaroid 57-Inch Photo/Video Tripod with Deluxe Tripod Case",
+    price: 1200,
+    oldPrice: 1600,
+    rating: 4,
+    reviews: 877,
+    badge: "25% OFF",
+    category: "camera-photo",
+    brand: "Panasonic",
+    image: img(4),
+    images: [img(4), img(13)],
+    stock: "In Stock",
+    sku: "A264676",
+    description:
+      "Lightweight aluminum tripod extending to 57 inches, with a quick-release plate, bubble level, and a padded carrying case included.",
+  },
+  {
+    _id: "p7",
+    name: "Dell Optiplex 7000x7480 All-in-One Computer Monitor",
+    price: 250,
+    rating: 5,
+    reviews: 426,
+    category: "computer-laptop",
+    brand: "Dell",
+    image: img(16),
+    images: [img(16), img(6)],
+    stock: "In Stock",
+    sku: "A264677",
+    description:
+      "27-inch QHD all-in-one desktop monitor with an integrated webcam, built-in speakers, and a tool-free stand adjustment.",
+  },
+  {
+    _id: "p8",
+    name: "4K UHD LED Smart TV with Chromecast Built-in",
+    price: 220,
+    rating: 5,
+    reviews: 583,
+    badge: "SALE",
+    category: "tv-homes",
+    brand: "Samsung",
+    image: img(5),
+    images: [img(5), img(18)],
+    stock: "In Stock",
+    sku: "A264678",
+    description:
+      "55-inch 4K UHD smart TV with HDR10, built-in Chromecast, and access to all your favorite streaming apps out of the box.",
+  },
+  {
+    _id: "macbook-pro",
+    name: "2020 Apple MacBook Pro with Apple M1 Chip (13-inch, 8GB RAM, 256GB SSD Storage) - Space Gray",
+    price: 1699,
+    oldPrice: 1999,
+    rating: 4.7,
+    reviews: 21671,
+    category: "computer-laptop",
+    brand: "Apple",
+    image: img(21),
+    images: [img(21), img(23), img(21), img(23), img(21)],
+    stock: "In Stock",
+    sku: "A264871",
+    company: "Electronics Devices",
+    colors: ["#8b8b8b", "#e3e3e3"],
+    sizes: ["14-inch Liquid Retina XDR display"],
+    memoryOptions: ["8GB unified memory", "16GB unified memory"],
+    storageOptions: ["256GB SSD Storage", "1TB SSD Storage"],
+    description:
+      "The most powerful MacBook Pro ever is here. With the blazing-fast M1 Pro or M1 Max chip — the first Apple silicon designed for pros — you get groundbreaking performance and amazing battery life.",
+    features: [
+      "Free 1 Year Warranty",
+      "Free Shipping & Fastest Delivery",
+      "100% Money-back guarantee",
+      "24/7 Customer support",
+      "Secure payment method",
+    ],
+    shipping: [
+      { label: "Courier", value: "2 - 4 days, free shipping" },
+      { label: "Local Shipping", value: "up to one week, $19.00" },
+      { label: "UPS Ground Shipping", value: "4-6 days, $29.00" },
+      { label: "Unishop Global Export", value: "3-4 days, $39.00" },
+    ],
+  },
+];
+
+export default products;

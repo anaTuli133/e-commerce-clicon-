@@ -89,7 +89,17 @@ export default function SignIn() {
             <span className="flex-1 h-px bg-gray-100" />
           </div>
 
-          <GoogleButton onClick={handleGoogle} loading={loading} />
+          <GoogleButton
+            loading={loading}
+            onSuccess={async (credential) => {
+              setError(null);
+              try {
+                await googleLogin(credential);
+                navigate("/");
+              } catch { }
+            }}
+            onError={(msg) => setError(msg)}
+          />
 
           <p className="text-sm text-gray-500 text-center mt-6">
             Don't have an account?{" "}

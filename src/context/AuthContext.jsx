@@ -42,20 +42,20 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function googleLogin() {
-    setLoading(true);
-    setError(null);
-    try {
-      const { user } = await api.loginWithGoogle();
-      setUser(user);
-      return user;
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
+async function googleLogin(credential) {
+  setLoading(true);
+  setError(null);
+  try {
+    const { user } = await api.loginWithGoogle(credential);
+    setUser(user);
+    return user;
+  } catch (e) {
+    setError(e.message);
+    throw e;
+  } finally {
+    setLoading(false);
   }
+}
 
   async function logout() {
     await api.logout();

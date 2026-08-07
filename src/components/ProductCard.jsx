@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaHeart, FaShoppingCart, FaRegEye, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaRegEye, FaRegHeart, FaCheck } from "react-icons/fa";
 import { MdCompareArrows } from "react-icons/md";
 import StarRating from "./StarRating";
 import { useCart } from "../context/CartContext";
@@ -10,9 +11,16 @@ export default function ProductCard({ product, onQuickView }) {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { isComparing, toggleCompare } = useCompare();
+  const [justAdded, setJustAdded] = useState(false);
 
   const wished = isWishlisted(product.id);
   const compared = isComparing(product.id);
+
+  function handleAddToCart() {
+    addToCart(product.id, 1);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1500);
+  }
 
   const badgeColor =
     product.badge === "HOT"
@@ -70,10 +78,20 @@ export default function ProductCard({ product, onQuickView }) {
         </div>
 
         <button
-          onClick={() => addToCart(product.id, 1)}
-          className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform bg-brand-dark text-white text-sm py-2 flex items-center justify-center gap-2"
+          onClick={handleAddToCart}
+          className={`absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-colors transition-transform duration-300 text-white text-sm py-2 flex items-center justify-center gap-2 ${
+            justAdded ? "bg-brand-green" : "bg-brand-dark"
+          }`}
         >
-          <FaShoppingCart size={13} /> Add to Cart
+          {justAdded ? (
+            <>
+              <FaCheck size={13} /> Added
+            </>
+          ) : (
+            <>
+              <FaShoppingCart size={13} /> Add to Cart
+            </>
+          )}
         </button>
       </div>
 

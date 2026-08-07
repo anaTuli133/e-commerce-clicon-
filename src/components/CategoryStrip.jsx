@@ -23,35 +23,25 @@ function useVisibleCount() {
 
 export default function CategoryStrip({ categories = [] }) {
   const VISIBLE = useVisibleCount();
-  const [index, setIndex] = useState(0);
+  // index-based paging এর বদলে rotation ব্যবহার করছি — এতে সব category
+  // screen-এ এমনিতেই ধরে গেলেও (n <= VISIBLE) বাটন চাপলে category গুলো
+  // ঘুরতে (loop) থাকবে, একদম infinite carousel-এর মতো।
+  const [rotation, setRotation] = useState(0);
   const [animate, setAnimate] = useState(true);
 
-  const maxIndex = Math.max(0, categories.length - VISIBLE);
-
-  useEffect(() => {
-    setIndex((i) => Math.min(i, maxIndex));
-  }, [maxIndex]);
+  const n = categories.length;
+  const rotated = n ? categories.map((_, i) => categories[(rotation + i) % n]) : [];
 
   function goLeft() {
-    if (index === 0) {
-      setAnimate(false);
-      setIndex(maxIndex);
-      requestAnimationFrame(() => setAnimate(true));
-    } else {
-      setAnimate(true);
-      setIndex((i) => i - 1);
-    }
+    if (!n) return;
+    setAnimate(true);
+    setRotation((r) => (r - 1 + n) % n);
   }
 
   function goRight() {
-    if (index >= maxIndex) {
-      setAnimate(false);
-      setIndex(0);
-      requestAnimationFrame(() => setAnimate(true));
-    } else {
-      setAnimate(true);
-      setIndex((i) => i + 1);
-    }
+    if (!n) return;
+    setAnimate(true);
+    setRotation((r) => (r + 1) % n);
   }
 
   return (
@@ -59,7 +49,7 @@ export default function CategoryStrip({ categories = [] }) {
       <h2 className="text-center text-lg md:text-2xl font-bold mb-6 md:mb-8">Shop with Categorys</h2>
 
       <div className="relative px-1">
-        {maxIndex > 0 && (
+        {n > 1 && (
           <button
             onClick={goLeft}
             className="flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-4 z-10 w-9 h-9 md:w-11 md:h-11 rounded-full bg-brand-orange hover:bg-brand-orange-dark text-white items-center justify-center shadow-lg"
@@ -71,9 +61,8 @@ export default function CategoryStrip({ categories = [] }) {
         <div className="overflow-hidden">
           <div
             className={`flex gap-3 md:gap-4 ${animate ? "transition-transform duration-500 ease-in-out" : ""}`}
-            style={{ transform: `translateX(-${index * (100 / VISIBLE)}%)` }}
           >
-            {categories.map((c) => (
+            {rotated.map((c) => (
               <Link
                 key={c.id}
                 to={`/shop?category=${c.id}`}
@@ -87,7 +76,7 @@ export default function CategoryStrip({ categories = [] }) {
           </div>
         </div>
 
-        {maxIndex > 0 && (
+        {n > 1 && (
           <button
             onClick={goRight}
             className="flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-4 z-10 w-9 h-9 md:w-11 md:h-11 rounded-full bg-brand-orange hover:bg-brand-orange-dark text-white items-center justify-center shadow-lg"

@@ -1,11 +1,4 @@
-/**
- *
- *  Real backend 
- *   1. .env ----VITE_API_BASE_URL=https://your-api.com/api 
- *   2. USE_MOCK = false 
- *   3. mock replace to httpRequest() 
- * =============================================================================
- */
+
 
 import {
   products as MOCK_PRODUCTS,
@@ -19,17 +12,14 @@ import {
 } from "../data/mockData";
 
 // ---------------------------------------------------------------------------
-// CONFIG — switch this when the real backend is ready
+// CONFIG 
 // ---------------------------------------------------------------------------
-export const USE_MOCK = true;
+export const USE_MOCK = false;
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 const wait = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/**
- * Generic real-API request helper — already wired up for when USE_MOCK=false.
- * Sends the JWT (if present) from localStorage as a Bearer token.
- */
+
 async function httpRequest(path, { method = "GET", body, headers = {} } = {}) {
   const token = localStorage.getItem("clicon_token");
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -90,7 +80,13 @@ export async function fetchProducts({ category, brand, minPrice, maxPrice, searc
     if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
     return { items: list, total: list.length };
   }
-  return httpRequest(`/products?${new URLSearchParams(arguments[0] || {})}`);
+  // undefined/null value-ওয়ালা key বাদ দিয়ে querystring বানানো হচ্ছে —
+  // নাহলে URLSearchParams সেগুলোকে literally "undefined" string বানিয়ে ফেলে,
+  // যেটা backend-এ Number("undefined") -> NaN হয়ে crash ঘটায়।
+  const cleanParams = Object.fromEntries(
+    Object.entries(arguments[0] || {}).filter(([, v]) => v !== undefined && v !== null && v !== "")
+  );
+  return httpRequest(`/products?${new URLSearchParams(cleanParams)}`);
 }
 
 export async function fetchProductById(id) {
@@ -122,38 +118,7 @@ export async function fetchHeroSlides() {
 // =============================================================================
 // AUTH
 // =============================================================================
-export async function loginWithEmail({ email, password }) {
-  if (USE_MOCK) {
-    await wait(500);
-    if (email === demoUser.email && password === demoUser.password) {
-      const token = "mock-jwt-" + Date.now();
-      writeLS(LS_KEYS.user, demoUser);
-      writeLS(LS_KEYS.token, token);
-      return { user: demoUser, token };
-    }
-    throw new Error("Invalid email or password");
-  }
-  const data = await httpRequest("/auth/login", { method: "POST", body: { email, password } });
-  writeLS(LS_KEYS.token, data.token);
-  return data;
-}
-
-export async function registerWithEmail({ name, email, password }) {
-  if (USE_MOCK) {
-    await wait(500);
-    const user = { id: "u_" + Date.now(), name, email, avatar: null };
-    const token = "mock-jwt-" + Date.now();
-    writeLS(LS_KEYS.user, user);
-    writeLS(LS_KEYS.token, token);
-    return { user, token };
-  }
-  const data = await httpRequest("/auth/register", { method: "POST", body: { name, email, password } });
-  writeLS(LS_KEYS.token, data.token);
-  return data;
-}
-
-
-export async function loginWithGoogle() {
+export async function loginWithGoogle(credential) {
   if (USE_MOCK) {
     await wait(700);
     const user = {
@@ -168,8 +133,11 @@ export async function loginWithGoogle() {
     writeLS(LS_KEYS.token, token);
     return { user, token };
   }
- 
-  throw new Error("Google auth not configured yet");
+  if (!credential) throw new Error("Missing Google credential");
+  const data = await httpRequest("/auth/google", { method: "POST", body: { credential } });
+  writeLS(LS_KEYS.token, data.token);
+  writeLS(LS_KEYS.user, data.user);
+  return data;
 }
 
 export async function logout() {

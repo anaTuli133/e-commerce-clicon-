@@ -1,15 +1,17 @@
-import { FcGoogle } from "react-icons/fc";
+import { GoogleLogin } from "@react-oauth/google";
 
-export default function GoogleButton({ onClick, loading, label = "Continue with Google" }) {
+export default function GoogleButton({ onSuccess, onError, loading }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={loading}
-      className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-md py-2.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-60 transition-colors"
-    >
-      <FcGoogle size={18} />
-      {loading ? "Connecting…" : label}
-    </button>
+    <div className={loading ? "opacity-60 pointer-events-none" : ""}>
+      <GoogleLogin
+        onSuccess={(credentialResponse) => onSuccess?.(credentialResponse.credential)}
+        onError={() => onError?.("Google sign-in failed. Please try again.")}
+        theme="outline"
+        size="large"
+        width="100%"
+        text="continue_with"
+        shape="rectangular"
+      />
+    </div>
   );
 }
