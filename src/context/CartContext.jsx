@@ -3,25 +3,61 @@ import * as api from "../services/api";
 
 const CartContext = createContext(null);
 
+// লগইন করা না থাকলে (guest) cart backend এ সেভ করা যায় না (login লাগে),
+// তাই সেক্ষেত্রে localStorage ব্যবহার করা হচ্ছে যাতে refresh দিলেও cart না হারায়।
+const GUEST_CART_KEY = "clicon_guest_cart";
+
+function isLoggedIn() {
+  return !!localStorage.getItem("clicon_token");
+}
+
+function readGuestCart() {
+  try {
+    const raw = localStorage.getItem(GUEST_CART_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeGuestCart(items) {
+  localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
+}
+
+// দুই জায়গায় (backend / localStorage) সেভ করার common ফাংশন
+function persistCart(items) {
+  if (isLoggedIn()) {
+    api.saveCart(items);
+  } else {
+    writeGuestCart(items);
+  }
+}
+
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]); // [{ productId, qty }]
   const [loaded, setLoaded] = useState(false);
   const modifiedRef = useRef(false); 
 
   useEffect(() => {
-    api.fetchCart().then((data) => {
-
+    if (isLoggedIn()) {
+      api.fetchCart().then((data) => {
+        if (!modifiedRef.current) {
+          setItems(data || []);
+        }
+        setLoaded(true);
+      }).catch(() => setLoaded(true));
+    } else {
       if (!modifiedRef.current) {
-        setItems(data || []);
+        setItems(readGuestCart());
       }
       setLoaded(true);
-    });
+    }
   }, []);
 
   const persist = useCallback((next) => {
     modifiedRef.current = true;
     setItems(next);
-    api.saveCart(next);
+    persistCart(next);
   }, []);
 
   const addToCart = useCallback(
@@ -35,7 +71,7 @@ export function CartProvider({ children }) {
         } else {
           next = [...prev, { productId, qty }];
         }
-        api.saveCart(next);
+        persistCart(next);
         return next;
       });
     },
@@ -46,7 +82,7 @@ export function CartProvider({ children }) {
     modifiedRef.current = true;
     setItems((prev) => {
       const next = prev.filter((i) => i.productId !== productId);
-      api.saveCart(next);
+      persistCart(next);
       return next;
     });
   }, []);
@@ -55,7 +91,7 @@ export function CartProvider({ children }) {
     modifiedRef.current = true;
     setItems((prev) => {
       const next = prev.map((i) => (i.productId === productId ? { ...i, qty: Math.max(1, qty) } : i));
-      api.saveCart(next);
+      persistCart(next);
       return next;
     });
   }, []);
@@ -69,7 +105,7 @@ export function CartProvider({ children }) {
       const next = prev.map((i) =>
         changeMap.has(i.productId) ? { ...i, qty: changeMap.get(i.productId) } : i
       );
-      api.saveCart(next);
+      persistCart(next);
       return next;
     });
   }, []);
