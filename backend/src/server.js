@@ -1,4 +1,5 @@
 import "dotenv/config";
+import dns from "dns";
 import path from "path";
 import { fileURLToPath } from "url";
 import express from "express";
@@ -16,6 +17,8 @@ import newsletterRoutes from "./routes/newsletterRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+dns.setDefaultResultOrder("ipv4first");
 
 await connectDB();
 
