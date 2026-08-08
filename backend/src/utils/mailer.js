@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import dns from "dns";
 
 let transporter = null;
 
@@ -16,7 +17,10 @@ function getTransporter() {
       user: process.env.EMAIL,
       pass: process.env.EMAIL_PASS,
     },
-    family: 4,
+ 
+    lookup: (hostname, options, callback) => {
+      dns.lookup(hostname, { family: 4 }, callback);
+    },
 
     connectionTimeout: 20000, // 20s 
     greetingTimeout: 20000,   // 20s SMTP greeting
