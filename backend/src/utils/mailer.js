@@ -22,9 +22,9 @@ function getTransporter() {
       dns.lookup(hostname, { family: 4 }, callback);
     },
 
-    connectionTimeout: 20000, // 20s 
-    greetingTimeout: 20000,   // 20s SMTP greeting
-    socketTimeout: 20000,     // 20s idle socket timeout
+    connectionTimeout: 50000, // 50s 
+    greetingTimeout: 50000,   // 50s SMTP greeting
+    socketTimeout: 50000,     // 50s idle socket timeout
   });
   return transporter;
 }
