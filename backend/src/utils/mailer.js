@@ -8,16 +8,17 @@ function getTransporter() {
     return null;
   }
   transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
     port: 587,
     secure: false,
+    requireTLS: true,
     auth: {
       user: process.env.EMAIL,
       pass: process.env.EMAIL_PASS,
     },
     family: 4,
 
-    connectionTimeout: 20000, // 20s
+    connectionTimeout: 20000, // 20s 
     greetingTimeout: 20000,   // 20s SMTP greeting
     socketTimeout: 20000,     // 20s idle socket timeout
   });
