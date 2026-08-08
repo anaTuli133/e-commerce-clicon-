@@ -1,19 +1,13 @@
-import { Resend } from "resend";
 
 
-let resend = null;
-
-function getClient() {
-  if (resend) return resend;
-  if (!process.env.RESEND_API_KEY) return null;
-  resend = new Resend(process.env.RESEND_API_KEY);
-  return resend;
-}
+const BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 
 export async function sendOrderConfirmationEmail(order) {
-  const client = getClient();
-  if (!client) {
-    console.warn("⚠️ RESEND_API_KEY সেট করা নেই — অর্ডার confirmation email পাঠানো হয়নি।");
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.EMAIL; // Brevo-তে verify করা ইমেইল
+
+  if (!apiKey || !senderEmail) {
+    console.warn("⚠️ BREVO_API_KEY / EMAIL সেট করা নেই — অর্ডার confirmation email পাঠানো হয়নি।");
     return;
   }
 
@@ -43,14 +37,23 @@ export async function sendOrderConfirmationEmail(order) {
     </div>
   `;
 
-  const { error } = await client.emails.send({
-    from: "Clicon Store <onboarding@resend.dev>",
-    to: order.email,
-    subject: `Order Confirmation — ${order.id}`,
-    html,
+  const res = await fetch(BREVO_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "api-key": apiKey,
+    },
+    body: JSON.stringify({
+      sender: { name: "Clicon Store", email: senderEmail },
+      to: [{ email: order.email }],
+      subject: `Order Confirmation — ${order.id}`,
+      htmlContent: html,
+    }),
   });
 
-  if (error) {
-    throw new Error(error.message || "Resend email পাঠাতে ব্যর্থ হয়়েছে");
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "");
+    throw new Error(`Brevo email পাঠাতে ব্যর্থ হয়েছে: ${res.status} ${errBody}`);
   }
 }
