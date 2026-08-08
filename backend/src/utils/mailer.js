@@ -1,38 +1,19 @@
-import nodemailer from "nodemailer";
-import dns from "dns";
+import { Resend } from "resend";
 
-let transporter = null;
 
-function getTransporter() {
-  if (transporter) return transporter;
-  if (!process.env.EMAIL || !process.env.EMAIL_PASS) {
-    return null;
-  }
-  transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    requireTLS: true,
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASS,
-    },
- 
-    lookup: (hostname, options, callback) => {
-      dns.lookup(hostname, { family: 4 }, callback);
-    },
+let resend = null;
 
-    connectionTimeout: 50000, // 50s 
-    greetingTimeout: 50000,   // 50s SMTP greeting
-    socketTimeout: 50000,     // 50s idle socket timeout
-  });
-  return transporter;
+function getClient() {
+  if (resend) return resend;
+  if (!process.env.RESEND_API_KEY) return null;
+  resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
 }
 
 export async function sendOrderConfirmationEmail(order) {
-  const t = getTransporter();
-  if (!t) {
-    console.warn("⚠️ EMAIL / EMAIL_PASS সেট করা নেই — অর্ডার confirmation email পাঠানো হয়নি।");
+  const client = getClient();
+  if (!client) {
+    console.warn("⚠️ RESEND_API_KEY সেট করা নেই — অর্ডার confirmation email পাঠানো হয়নি।");
     return;
   }
 
@@ -62,10 +43,14 @@ export async function sendOrderConfirmationEmail(order) {
     </div>
   `;
 
-  await t.sendMail({
-    from: `"Clicon Store" <${process.env.EMAIL}>`,
+  const { error } = await client.emails.send({
+    from: "Clicon Store <onboarding@resend.dev>",
     to: order.email,
     subject: `Order Confirmation — ${order.id}`,
     html,
   });
+
+  if (error) {
+    throw new Error(error.message || "Resend email পাঠাতে ব্যর্থ হয়়েছে");
+  }
 }
