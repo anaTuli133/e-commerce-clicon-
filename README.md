@@ -36,10 +36,6 @@ ecommerce-frontend/
 └── vercel.json             → SPA rewrite rules for frontend deployment
 ```
 
-The frontend never talks to MongoDB directly — every network call goes through
-**`src/services/api.js`**, which calls the Express API. This keeps the frontend swappable:
-flip `USE_MOCK` in that file to `true` and the whole app runs on local mock data with no backend
-at all (useful for UI-only work or demos without a database).
 
 ---
 
