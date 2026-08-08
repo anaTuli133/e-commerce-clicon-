@@ -55,8 +55,8 @@ export async function getProductById(req, res, next) {
   }
 }
 
-// POST /api/products  (Postman দিয়ে নতুন প্রোডাক্ট বসানোর জন্য)
-// body তে "id" ফিল্ড পাঠালে সেটাই _id হবে, না পাঠালে auto slug বানানো হবে।
+// POST /api/products  
+
 export async function createProduct(req, res, next) {
   try {
     const body = { ...req.body };
@@ -79,6 +79,38 @@ export async function createProduct(req, res, next) {
 
     const product = await Product.create(body);
     res.status(201).json(withId(product.toObject()));
+  } catch (err) {
+    next(err);
+  }
+}
+
+// PUT /api/products/:id
+
+export async function updateProduct(req, res, next) {
+  try {
+    const body = { ...req.body };
+    delete body.id;
+    delete body._id;
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $set: body },
+      { new: true, runValidators: true }
+    ).lean();
+
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.json(withId(product));
+  } catch (err) {
+    next(err);
+  }
+}
+
+// DELETE /api/products/:id
+export async function deleteProduct(req, res, next) {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id).lean();
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.json({ message: "Deleted", id: req.params.id });
   } catch (err) {
     next(err);
   }

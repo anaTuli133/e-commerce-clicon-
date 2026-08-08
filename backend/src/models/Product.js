@@ -7,7 +7,7 @@ const shippingLineSchema = new mongoose.Schema(
 
 const productSchema = new mongoose.Schema(
   {
-    // ফ্রন্টএন্ডের সাথে সামঞ্জস্য রাখতে custom string id ব্যবহার করছি (যেমন "p1", "macbook-pro")
+    
     _id: { type: String },
     name: { type: String, required: true },
     price: { type: Number, required: true },
