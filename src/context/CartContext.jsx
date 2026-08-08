@@ -3,8 +3,6 @@ import * as api from "../services/api";
 
 const CartContext = createContext(null);
 
-// লগইন করা না থাকলে (guest) cart backend এ সেভ করা যায় না (login লাগে),
-// তাই সেক্ষেত্রে localStorage ব্যবহার করা হচ্ছে যাতে refresh দিলেও cart না হারায়।
 const GUEST_CART_KEY = "clicon_guest_cart";
 
 function isLoggedIn() {
@@ -24,7 +22,6 @@ function writeGuestCart(items) {
   localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
 }
 
-// দুই জায়গায় (backend / localStorage) সেভ করার common ফাংশন
 function persistCart(items) {
   if (isLoggedIn()) {
     api.saveCart(items);
@@ -98,7 +95,7 @@ export function CartProvider({ children }) {
 
 
   const updateCart = useCallback((changes) => {
-    // changes: [{ productId, qty }, ...]
+
     modifiedRef.current = true;
     setItems((prev) => {
       const changeMap = new Map(changes.map((c) => [c.productId, Math.max(1, c.qty)]));

@@ -40,11 +40,7 @@ export async function login(req, res) {
   res.json({ user: user.toPublicJSON(), token });
 }
 
-/**
- * Real Google Sign-In.
- * ফ্রন্টএন্ড থেকে @react-oauth/google এর মাধ্যমে পাওয়া `credential` (Google ID token)
- * এখানে server-side এ verify করা হয় — তাই কেউ fake token পাঠিয়ে bypass করতে পারবে না।
- */
+
 export async function googleAuth(req, res) {
   const { credential } = req.body;
   if (!credential) {
@@ -75,7 +71,6 @@ export async function googleAuth(req, res) {
       provider: "google",
     });
   } else if (!user.googleId) {
-    // আগে email/password দিয়ে অ্যাকাউন্ট থাকলে, এখন Google-ও লিংক করে দিচ্ছি
     user.googleId = googleId;
     user.avatar = user.avatar || picture;
     await user.save();
@@ -86,7 +81,7 @@ export async function googleAuth(req, res) {
 }
 
 export async function logout(req, res) {
-  // JWT stateless — client শুধু নিজের token মুছে দিলেই যথেষ্ট
+  // JWT stateless 
   res.json({ success: true });
 }
 

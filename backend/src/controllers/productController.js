@@ -55,6 +55,8 @@ export async function getProductById(req, res, next) {
   }
 }
 
+// POST /api/products  (Postman দিয়ে নতুন প্রোডাক্ট বসানোর জন্য)
+// body তে "id" ফিল্ড পাঠালে সেটাই _id হবে, না পাঠালে auto slug বানানো হবে।
 export async function createProduct(req, res, next) {
   try {
     const body = { ...req.body };
@@ -82,13 +84,15 @@ export async function createProduct(req, res, next) {
   }
 }
 
+// POST /api/products/upload-image 
+
 export async function uploadProductImage(req, res, next) {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "কোনো ছবি পাওয়া যায়নি — form-data তে 'image' নামে একটা file field পাঠাও" });
     }
-    const base = process.env.IMAGE_BASE_URL || `${req.protocol}://${req.get("host")}`;
-    const url = `${base}/products/${req.file.filename}`;
+    // multer-storage-cloudinary req.file.path 
+    const url = req.file.path;
     res.status(201).json({ url, filename: req.file.filename });
   } catch (err) {
     next(err);

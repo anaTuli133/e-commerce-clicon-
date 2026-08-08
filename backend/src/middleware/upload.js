@@ -1,25 +1,28 @@
 import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 
-const UPLOAD_DIR = path.join(__dirname, "..", "..", "public", "products");
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, UPLOAD_DIR);
-  },
-  filename(req, file, cb) {
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "clicon-products", 
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "gif"],
 
-    const ext = path.extname(file.originalname).toLowerCase();
-    const base = path
-      .basename(file.originalname, ext)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-    cb(null, `${base}-${Date.now()}${ext}`);
+    public_id: (req, file) => {
+      const base = file.originalname
+        .replace(/\.[^/.]+$/, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      return `${base}-${Date.now()}`;
+    },
   },
 });
 
@@ -27,7 +30,7 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/g
 
 function fileFilter(req, file, cb) {
   if (!ALLOWED_TYPES.has(file.mimetype)) {
-    return cb(new Error("Only upload jpeg/png/webp/gif"));
+    return cb(new Error("শুধু jpeg/png/webp/gif ছবি আপলোড করা যাবে"));
   }
   cb(null, true);
 }

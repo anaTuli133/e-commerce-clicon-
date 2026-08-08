@@ -1,4 +1,5 @@
 import Order from "../models/Order.js";
+import { sendOrderConfirmationEmail } from "../utils/mailer.js";
 
 function withId(doc) {
   if (!doc) return doc;
@@ -19,7 +20,7 @@ export async function placeOrder(req, res) {
   }
 
   let id = generateOrderId();
-  // অত্যন্ত বিরল ক্ষেত্রে ID collision হলে আবার জেনারেট করছি
+
   while (await Order.exists({ _id: id })) {
     id = generateOrderId();
   }
@@ -40,6 +41,11 @@ export async function placeOrder(req, res) {
   });
 
   res.status(201).json(withId(order));
+
+
+  sendOrderConfirmationEmail(withId(order)).catch((err) => {
+    console.error("Order confirmation email পাঠাতে সমস্যা হয়েছে:", err.message);
+  });
 }
 
 export async function trackOrder(req, res) {

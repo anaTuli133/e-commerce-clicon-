@@ -1,14 +1,23 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaCheck } from "react-icons/fa";
+import { useState } from "react";
 import Breadcrumb from "../components/Breadcrumb";
+import Toast from "../components/Toast";
 
 export default function CheckoutSuccess() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const order = state?.order;
+  const [showToast, setShowToast] = useState(true);
 
   return (
     <div>
+      {showToast && (
+        <Toast
+          message="Please check your email to track your order! We've sent your tracking ID and order details there."
+          onClose={() => setShowToast(false)}
+        />
+      )}
       <Breadcrumb items={[{ label: "Shopping Cart", to: "/cart" }, { label: "Checkout" }]} />
       <div className="container-x py-20 text-center">
         <div className="w-16 h-16 rounded-full bg-brand-green/10 flex items-center justify-center mx-auto mb-6">

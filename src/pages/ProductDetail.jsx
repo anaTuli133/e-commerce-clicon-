@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   FaHeart, FaRegHeart, FaFacebookF, FaTwitter, FaPinterestP, FaChevronLeft, FaChevronRight,
-  FaShieldAlt, FaTruck, FaMoneyBillWave, FaHeadset, FaLock,
+  FaShieldAlt, FaTruck, FaMoneyBillWave, FaHeadset, FaLock, FaCheck,
   FaCcVisa, FaCcMastercard, FaCcPaypal, FaCcAmex, FaCcDiscover, FaCcJcb, FaCcDinersClub, FaCcApplePay,
 } from "react-icons/fa";
 import { MdCompareArrows } from "react-icons/md";
@@ -57,6 +57,7 @@ export default function ProductDetail() {
   const [tab, setTab] = useState(TABS[0]);
   const [colorIdx, setColorIdx] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [justAdded, setJustAdded] = useState(false);
 
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
@@ -211,10 +212,22 @@ export default function ProductDetail() {
                 <button onClick={() => setQty((q) => q + 1)} className="w-10 h-11 hover:bg-gray-50">+</button>
               </div>
               <button
-                onClick={() => addToCart(product.id, qty)}
-                className="bg-brand-orange hover:bg-brand-orange-dark text-white font-semibold text-sm px-6 py-3 rounded flex items-center gap-2"
+                onClick={() => {
+                  addToCart(product.id, qty);
+                  setJustAdded(true);
+                  setTimeout(() => setJustAdded(false), 1500);
+                }}
+                className={`text-white font-semibold text-sm px-6 py-3 rounded flex items-center gap-2 transition-colors ${
+                  justAdded ? "bg-brand-green" : "bg-brand-orange hover:bg-brand-orange-dark"
+                }`}
               >
-                Add To Cart 🛒
+                {justAdded ? (
+                  <>
+                    <FaCheck size={14} /> Added
+                  </>
+                ) : (
+                  <>Add To Cart 🛒</>
+                )}
               </button>
               <button
                 onClick={() => {

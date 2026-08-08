@@ -7,11 +7,11 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 const PAYMENT_OPTIONS = [
-  { id: "cod", label: "Cash on Delivery", icon: FaMoneyBillWave },
-  { id: "venmo", label: "Venmo", icon: FaCcVisa },
-  { id: "paypal", label: "Paypal", icon: FaPaypal },
-  { id: "amazonpay", label: "Amazon Pay", icon: FaAmazonPay },
-  { id: "card", label: "Debit/Credit Card", icon: FaCreditCard },
+  { id: "cod", label: "Cash on Delivery", icon: FaMoneyBillWave, color: "text-green-600" },
+  { id: "venmo", label: "Venmo", icon: FaCcVisa, color: "text-blue-800" },
+  { id: "paypal", label: "Paypal", icon: FaPaypal, color: "text-blue-600" },
+  { id: "amazonpay", label: "Amazon Pay", icon: FaAmazonPay, color: "text-orange-500" },
+  { id: "card", label: "Debit/Credit Card", icon: FaCreditCard, color: "text-gray-700" },
 ];
 
 export default function Checkout() {
@@ -80,16 +80,16 @@ export default function Checkout() {
             <div className="border border-gray-100 rounded-md p-5">
               <h2 className="font-semibold mb-4">Payment Option</h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-                {PAYMENT_OPTIONS.map(({ id, label, icon: Icon }) => (
+                {PAYMENT_OPTIONS.map(({ id, label, icon: Icon, color }) => (
                   <button
                     type="button"
                     key={id}
                     onClick={() => setPayment(id)}
                     className={`flex flex-col items-center gap-2 border rounded-md p-3 text-xs ${
-                      payment === id ? "border-brand-orange text-brand-orange" : "border-gray-200 text-gray-500"
+                      payment === id ? "border-brand-orange bg-orange-50 text-brand-orange" : "border-gray-200 text-gray-500"
                     }`}
                   >
-                    <Icon size={18} />
+                    <Icon size={18} className={color} />
                     {label}
                   </button>
                 ))}

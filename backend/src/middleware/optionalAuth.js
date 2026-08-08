@@ -11,7 +11,7 @@ export async function optionalAuth(req, res, next) {
     const user = await User.findById(decoded.id);
     if (user) req.user = user;
   } catch {
-    // অকার্যকর token হলেও guest হিসেবে চালিয়ে যাওয়া হবে, error দেওয়া হবে না
+    
   }
   next();
 }
