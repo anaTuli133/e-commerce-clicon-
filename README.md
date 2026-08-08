@@ -115,13 +115,14 @@ CLOUDINARY_CLOUD_NAME=...
 CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
 
-# Email (optional — for newsletter/order emails, see Roadmap)
+# Email (for newsletter/order emails)
 RESEND_API_KEY=...
 ```
 
 > Getting a Google OAuth Client ID: Google Cloud Console → **APIs & Services → Credentials** →
 > **Create Credentials → OAuth client ID** → Application type **Web application** → add
 > `http://localhost:5173` under **Authorized JavaScript origins**.
+> order-confirmation emails via Resend
 
 ### 3. Seed the database
 ```bash
@@ -262,8 +263,6 @@ Two ways images get served:
       that calls the existing `x-admin-key`-protected product routes: create/edit/delete
       products, upload images via Cloudinary, view orders, and manage stock — the API side is
       already built, only the UI is missing
-- [ ] Wire up real newsletter delivery and order-confirmation emails via Resend/Nodemailer
-      (dependencies already installed, not yet called)
 - [ ] Payment gateway integration (Stripe / SSLCommerz / etc.) at checkout
 - [ ] Role-based auth (`admin` vs `customer`) instead of a shared static `ADMIN_KEY`, once the
       admin dashboard needs its own login
@@ -278,5 +277,5 @@ This project is open-sourced under the [MIT License](./LICENSE).
 ---
 
 <div align="center">
-Made with ❤️ using React, Tailwind CSS, Express, and MongoDB
+Made with using React, Tailwind CSS, Express, Nodejs and MongoDB
 </div>
